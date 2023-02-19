@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  urdf-from-step:
+    image: urdf-from-step:latest
+    volumes:
+      - /home/rok/catkin_ws/src/urdf-from-step:/ros_ws/src/urdf-from-step
+      - /home/rok/urdf_test/step_files:/input_step_files
+      - /home/rok/urdf_test/packages:/output_ros_urdf_packages
+    #command: stdbuf -o L /bin/bash
+    network_mode: "host"
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t

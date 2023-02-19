@@ -1,4 +1,4 @@
 # urdf-from-step-docker
 
 
-docker build -t urdt-from-step .
+docker build -t urdf-from-step .
