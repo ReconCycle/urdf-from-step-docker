@@ -4,8 +4,8 @@ services:
   urdf-from-step:
     image: urdf-from-step:latest
     volumes:
-      - /media/rok/Data4/urdf_dev_ws/src:/ros_ws/src
-      - /home/rok/Documents/urdf_creator:/scripts_occ
+      - /media/rok/Data4/urdf_dev_ws/src:/input_step_files
+      - /home/rok/Documents/urdf_creator:/output_ros_urdf_packages
     #command: stdbuf -o L /bin/bash
     network_mode: "host"
     stdin_open: true # docker run -i
