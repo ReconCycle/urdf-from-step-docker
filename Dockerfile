@@ -93,10 +93,7 @@ SHELL ["/bin/bash", "-c"]
 
 RUN source /opt/ros/$ROS_DISTRO/setup.bash
 
-RUN echo "source \"/opt/ros/$ROS_DISTRO/setup.bash\"" >> /source_ws.sh
-RUN chmod +x /source_ws.sh
-WORKDIR /
-RUN ./source_ws.sh
+
 
 WORKDIR /ros_ws
 
@@ -122,13 +119,20 @@ RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
 
 
 # Always source ros_catkin_entrypoint.sh when launching bash (e.g. when attaching to container)
+
+
+
 RUN echo "source /source_ws.sh" >> /root/.bashrc
-
-
-RUN echo "source \"/ros_ws/devel/setup.bash\"" >> /source_ws.sh
-
+WORKDIR /
+RUN echo "#!/bin/bash" >> /source_ws.sh
+RUN echo "set -e" >> /source_ws.sh
+RUN echo "source \"/opt/ros/$ROS_DISTRO/setup.bash\" --" >> /source_ws.sh
+RUN chmod +x /source_ws.sh
+RUN echo "source \"/ros_ws/devel/setup.bash\" --" >> /source_ws.sh
+RUN echo "exec \"\$@\"" >> /source_ws.sh
+RUN ./source_ws.sh
 
 WORKDIR /ros_ws
 
-
-#ENTRYPOINT ["/source_ws.sh"]
+ENTRYPOINT ["/source_ws.sh"]
+CMD ["bash"]
