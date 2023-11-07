@@ -1,4 +1,4 @@
-FROM ros:noetic-ros-core-focal
+FROM sha256:ce590ec63b9707a79a71137c3d019d9142717e6518644bf14d5c8f9c5fbb65b0 #ros:noetic-ros-core-focal
 
 # Set some environment variables for the GUI
 ENV HOME=/root \
@@ -56,10 +56,19 @@ RUN ls /opt/build/occt753/lib
 #############
 # pythonocc #
 #############
+
+
 WORKDIR /opt/build
-RUN git clone https://github.com/tpaviot/pythonocc-core
+RUN git clone https://github.com/tpaviot/pythonocc-core.git
 WORKDIR /opt/build/pythonocc-core
-#RUN git checkout 7.5.1
+RUN git checkout 7.7.0 #7.6.2  #
+RUN python3 --version
+
+#RUN python --version
+#RUN swig -version
+#RUN apt-get install swig==4.1.1
+#RUN pip3 install swig==4.1.1
+
 WORKDIR /opt/build/pythonocc-core/build
 
 RUN cmake \
