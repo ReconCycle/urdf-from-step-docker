@@ -1,6 +1,7 @@
-FROM  ros:noetic-ros-core-focal 
+FROM ros:noetic-ros-core-focal  
+#ros@sha256:ce590ec63b9707a79a71137c3d019d9142717e6518644bf14d5c8f9c5fbb65b0
 
-#sha256:ce590ec63b9707a79a71137c3d019d9142717e6518644bf14d5c8f9c5fbb65b0 
+#
 
 #
 
@@ -28,34 +29,38 @@ RUN set -ex; \
 #####################
 
 
-RUN apt-get install -y wget git build-essential libgl1-mesa-dev libfreetype6-dev libglu1-mesa-dev libzmq3-dev libsqlite3-dev libicu-dev python3-dev libgl2ps-dev libfreeimage-dev libtbb-dev ninja-build bison autotools-dev automake libpcre3 libpcre3-dev tcl8.6 tcl8.6-dev tk8.6 tk8.6-dev libxmu-dev libxi-dev libopenblas-dev libboost-all-dev swig libxml2-dev cmake rapidjson-dev
+
+RUN apt-get install -y wget libglu1-mesa-dev libgl1-mesa-dev libxmu-dev libxi-dev build-essential cmake libfreetype6-dev tk-dev python3-dev rapidjson-dev python3 git python3-pip libpcre2-dev
 
 RUN dpkg-reconfigure --frontend noninteractive tzdata
 
+RUN wget http://prdownloads.sourceforge.net/swig/swig-4.1.1.tar.gz
+RUN tar -zxvf swig-4.1.1.tar.gz 
+WORKDIR swig-4.1.1
+RUN ./configure && make -j4 && make install
+
 
 ############################################################
-# OCCT 7.5.3                                               #
+# OCCT 7.7.2                                               #
 # Download the official source package from git repository #
 ############################################################
-WORKDIR /opt/build
-RUN wget 'https://git.dev.opencascade.org/gitweb/?p=occt.git;a=snapshot;h=fecb042498514186bd37fa621cdcf09eb61899a3;sf=tgz' -O occt-fecb042.tar.gz
-RUN tar -zxvf occt-fecb042.tar.gz >> extracted_occt753_files.txt
-RUN mkdir occt-fecb042/build
-WORKDIR /opt/build/occt-fecb042/build
+WORKDIR /occt
+RUN ls
+RUN wget 'https://git.dev.opencascade.org/gitweb/?p=occt.git;a=snapshot;h=cec1ecd0c9f3b3d2572c47035d11949e8dfa85e2;sf=tgz' -O occt-7.7.2.tgz #occt-cec1ecd.tar.gz #
 
-RUN ls /usr/include
-RUN cmake -G Ninja \
- -DINSTALL_DIR=/opt/build/occt753 \
- -DBUILD_RELEASE_DISABLE_EXCEPTIONS=OFF \
- ..
 
-RUN ninja install
+RUN ls
 
-RUN echo "/opt/build/occt753/lib" >> /etc/ld.so.conf.d/occt.conf
-RUN ldconfig
+RUN tar -xvzf occt-7.7.2.tgz # >> extracted_occt772_files.txt
+WORKDIR  /occt/occt-cec1ecd
+RUN mkdir cmake-build
+WORKDIR /occt/occt-cec1ecd/cmake-build
 
-RUN ls /opt/build/occt753
-RUN ls /opt/build/occt753/lib
+RUN cmake -DINSTALL_DIR=/opt/build/occt772 -DBUILD_RELEASE_DISABLE_EXCEPTIONS=OFF ..
+RUN make -j4
+RUN make install
+RUN echo "/opt/build/occt772/lib" >> /etc/ld.so.conf.d/occt.conf
+
 
 #############
 # pythonocc #
@@ -65,25 +70,26 @@ RUN ls /opt/build/occt753/lib
 WORKDIR /opt/build
 RUN git clone https://github.com/tpaviot/pythonocc-core.git
 WORKDIR /opt/build/pythonocc-core
-RUN git checkout 7.5.1  #7.7.2 #7.7.0 #
+RUN git checkout 7.7.2 #7.7.0 #7.5.1  #
 RUN python3 --version
 
-RUN apt remove -y swig swig4.0
+#RUN apt remove -y swig swig4.0
 #RUN python --version
 #RUN swig -version
 #RUN apt-get install swig==4.1.1
-RUN pip3 install swig==4.0.2 #4.1.1
+#RUN pip3 install swig==4.0.2 #4.1.1
 
-
-WORKDIR /opt/build/pythonocc-core/build
+RUN mkdir cmake-build && cd cmake-build
 
 RUN cmake \
- -DOCE_INCLUDE_PATH=/opt/build/occt753/include/opencascade \
- -DOCE_LIB_PATH=/opt/build/occt753/lib \
+ -DOCCT_INCLUDE_DIR=/opt/build/occt772/include/opencascade \
+ -DOCCT_LIBRARY_DIR=/opt/build/occt772/lib \
  -DPYTHONOCC_BUILD_TYPE=Release \
- ..
+ -DPYTHONOCC_INSTALL_DIR=/where_to_install
+ # ..
 
-RUN make -j3 && make install 
+RUN make -j4 && make install 
+
 
 ############
 # svgwrite #
