@@ -1,9 +1,6 @@
-FROM ros:noetic-ros-core-focal  
-#ros@sha256:ce590ec63b9707a79a71137c3d019d9142717e6518644bf14d5c8f9c5fbb65b0
+FROM ros@sha256:ce590ec63b9707a79a71137c3d019d9142717e6518644bf14d5c8f9c5fbb65b0
 
-#
-
-#
+#ros:noetic-ros-core-focal  
 
 # Set some environment variables for the GUI
 ENV HOME=/root \
@@ -45,9 +42,8 @@ RUN ./configure && make -j4 && make install
 # Download the official source package from git repository #
 ############################################################
 WORKDIR /occt
-RUN ls
-RUN wget 'https://git.dev.opencascade.org/gitweb/?p=occt.git;a=snapshot;h=cec1ecd0c9f3b3d2572c47035d11949e8dfa85e2;sf=tgz' -O occt-7.7.2.tgz #occt-cec1ecd.tar.gz #
 
+RUN wget 'https://git.dev.opencascade.org/gitweb/?p=occt.git;a=snapshot;h=cec1ecd0c9f3b3d2572c47035d11949e8dfa85e2;sf=tgz' -O occt-7.7.2.tgz 
 
 RUN ls
 
@@ -69,32 +65,30 @@ RUN echo "/opt/build/occt772/lib" >> /etc/ld.so.conf.d/occt.conf
 
 WORKDIR /opt/build
 RUN git clone https://github.com/tpaviot/pythonocc-core.git
+
+WORKDIR  mkdir pythonocc_install
+
 WORKDIR /opt/build/pythonocc-core
-RUN git checkout 7.7.2 #7.7.0 #7.5.1  #
-RUN python3 --version
+RUN git checkout 7.7.2 
 
-#RUN apt remove -y swig swig4.0
-#RUN python --version
-#RUN swig -version
-#RUN apt-get install swig==4.1.1
-#RUN pip3 install swig==4.0.2 #4.1.1
 
-RUN mkdir cmake-build && cd cmake-build
+RUN mkdir cmake-build
+WORKDIR /opt/build/pythonocc-core/cmake-build
 
 RUN cmake \
  -DOCCT_INCLUDE_DIR=/opt/build/occt772/include/opencascade \
  -DOCCT_LIBRARY_DIR=/opt/build/occt772/lib \
  -DPYTHONOCC_BUILD_TYPE=Release \
- -DPYTHONOCC_INSTALL_DIR=/where_to_install
- # ..
+ -DPYTHONOCC_MESHDS_NUMPY=ON \
+ -DPYTHONOCC_INSTALL_DIR=/opt/build/pythonocc_install \
+ ..
 
 RUN make -j4 && make install 
-
-
+ENV PYTHONPATH=/usr/local/lib/python3/dist-packages:$PYTHONPATH
 ############
 # svgwrite #
 ############
-RUN pip install svgwrite
+RUN pip install svgwrite numpy matplotlib 
 
 
 RUN pip install catkin_tools
