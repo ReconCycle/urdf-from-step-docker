@@ -123,6 +123,7 @@ WORKDIR /ros_ws/src
 RUN git clone https://github.com/ReconCycle/urdf_from_step.git
 
 WORKDIR /ros_ws/src/urdf_from_step
+
 RUN git pull
 RUN git rev-parse --short HEAD
 

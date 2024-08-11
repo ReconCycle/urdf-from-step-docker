@@ -2,9 +2,9 @@ version: '3'
 
 services:
   urdf-from-step:
-    image: urdf-from-step:latest
+    image: ghcr.io/reconcycle/urdf-from-step:latest
     volumes:
-      - /home/rok/catkin_ws/src/urdf_from_step:/ros_ws/src/urdf_from_step
+      - /home/rok/urdf_from_step:/ros_ws/src/urdf_from_step
       - /home/rok/Documents/urdf-from-step-examples/examples/robot_arm/input_step_files:/input_step_files
       - /home/rok/Documents/urdf-from-step-examples/examples/robot_arm/output_ros_urdf_packages:/output_ros_urdf_packages
     #command: stdbuf -o L /bin/bash
